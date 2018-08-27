@@ -48,7 +48,7 @@ function [model, misc]=buildModel(data, model, misc)
 %       April 23, 2018
 %
 %   DATE LAST UPDATE:
-%       July 25, 2018
+%       August 22, 2018
 
 %--------------------BEGIN CODE ----------------------
 
@@ -88,9 +88,11 @@ end
 
 %% Default prior information
 
-PriorType = 'normal';
-PriorMean = 0;
-PriorSdev = 1E6;
+PriorType = 'N/A'; 
+PriorMean = NaN;
+PriorSdev = NaN;
+
+disp('     Building model...')
 
 %% Block Component definition
 
@@ -363,7 +365,7 @@ if misc.isDataSimulation
     summ=a+b+c;
     summ_trun = summ(1:model.components.nb_KR_p);
     
-    KR.pQ0=[{'1E-1'};{'0'}];
+    KR.pQ0=[{'0'};{'0'}];
     KR.init={['[' sprintf('%f ', summ_trun) ']'],['[' repmat('0.01 ',[1,model.components.nb_KR_p]) ']']};
 else
     

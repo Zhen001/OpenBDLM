@@ -72,7 +72,7 @@ function [FigureNames] = plotHiddenStates(data, model, estimation, misc, varargi
 %       June 6, 2018
 %
 %   DATE LAST UPDATE:
-%       June 8, 2018
+%       August 22, 2018
 
 %--------------------BEGIN CODE ----------------------
 
@@ -105,6 +105,14 @@ isExportPDF = p.Results.isExportPDF;
 isExportPNG = p.Results.isExportPNG;
 isExportTEX = p.Results.isExportTEX;
 FilePath=p.Results.FilePath;
+
+%% Get options from misc
+FigurePosition=misc.options.FigurePosition;
+isSecondaryPlot=misc.options.isSecondaryPlot;
+Linewidth=misc.options.Linewidth;
+ndivx = misc.options.ndivx;
+ndivy = misc.options.ndivy;
+Subsample=misc.options.Subsample;
 
 %% Create specified path if not existing
 [isFileExist] = testFileExistence(FilePath, 'dir');
@@ -143,10 +151,10 @@ timestamps=data.timestamps;
 %[timesteps]=computeTimeSteps(timestamps);
 
 % Define timestamp vector for main plot
-plot_time_1=1:misc.subsample:length(timestamps);
+plot_time_1=1:Subsample:length(timestamps);
 
 % Define timestamp vector for secondary plot plot
-if  misc.isSecondaryPlots
+if  isSecondaryPlot
     
     time_fraction=0.641;
     plot_time_2=round(time_fraction*length(timestamps)): ...
@@ -156,7 +164,7 @@ end
 
 %% Define paramater for plot appeareance
 % Get subplot parameter
-if ~misc.isSecondaryPlots
+if ~isSecondaryPlot
     idx_supp_plot=1;
 else
     idx_supp_plot=0;
@@ -172,8 +180,10 @@ BlueColor = [0, 0.4, 0.8];
 loop=0;
 for idx=1:numberOfHiddenStates
     if and(strncmpi(model.hidden_states_names{1}(idx,1),'x^{KR',5),...
-            ~strcmp(model.hidden_states_names{1}(idx,1),'x^{KR1}'))
-        % Special plot for dynamic kernel regression
+             ~strcmp(model.hidden_states_names{1}(idx,1),'x^{KR1}')) && ...
+         and(strncmpi(model.hidden_states_names{1}(idx,1),'x^{KR',5),...
+             ~strcmp(model.hidden_states_names{1}(idx,1),'x^{KR0}'))           
+        
     else
         
         if idx > 1 && ~strcmp(model.hidden_states_names{1}{idx-1,3},  ...
@@ -185,7 +195,7 @@ for idx=1:numberOfHiddenStates
         
         %FigHandle = figure;
         FigHandle = figure('DefaultAxesPosition', [0.1, 0.17, 0.8, 0.8]);
-        set(FigHandle, 'Position', [100, 100, 1300, 270])
+        set(FigHandle, 'Position', FigurePosition)
         subplot(1,3,1:2+idx_supp_plot,'align')
         
         %% Main plot
@@ -210,7 +220,7 @@ for idx=1:numberOfHiddenStates
             patch(px,py,'green','EdgeColor','none','FaceColor','green', ...
                 'FaceAlpha',0.2);
             % Plot estimated posterior state mean values
-            plot(timestamps(plot_time_1),xpl,'k','Linewidth',misc.linewidth)
+            plot(timestamps(plot_time_1),xpl,'k','Linewidth',Linewidth)
             
             if isfield(estimation,'ref')
                 % Plot true values
@@ -250,7 +260,7 @@ for idx=1:numberOfHiddenStates
                 % Plot true values
                 plot(timestamps(plot_time_1), ...
                     dataset_x_ref(plot_time_1,idx), 'Color', BlueColor,  ...
-                    'LineWidth', misc.linewidth)
+                    'LineWidth', Linewidth)
             end
             
         end
@@ -269,7 +279,7 @@ for idx=1:numberOfHiddenStates
         hold off
         
         %% Secondary plots
-        if misc.isSecondaryPlots
+        if isSecondaryPlot
             subplot(1,3,3,'align')
             
             if isfield(estimation,'x')
@@ -284,7 +294,7 @@ for idx=1:numberOfHiddenStates
                 patch(px,py,'green','EdgeColor','none', ...
                     'FaceColor','green','FaceAlpha',0.2);
                 % Plot estimated posterior state mean values
-                plot(timestamps(plot_time_2),xpl,'k','Linewidth',misc.linewidth)
+                plot(timestamps(plot_time_2),xpl,'k','Linewidth',Linewidth)
                 
                 if isfield(estimation,'ref')
                     % Plot true values
@@ -295,12 +305,12 @@ for idx=1:numberOfHiddenStates
             else
                 % Plot true values
                 plot(timestamps(plot_time_2),dataset_x_ref(plot_time_2,idx), ...
-                    'Color', BlueColor, 'LineWidth', misc.linewidth )
+                    'Color', BlueColor, 'LineWidth', Linewidth )
             end
             
             set(gca,'XTick',linspace(timestamps(plot_time_2(1)), ...
                 timestamps(plot_time_2(size(timestamps(plot_time_2),1))), ...
-                misc.ndivy),...
+                ndivy),...
                 'YTick', [], ...
                 'box', 'off', ...
                 'Fontsize', 16);
@@ -318,7 +328,8 @@ for idx=1:numberOfHiddenStates
             
             % Define the name of the figure
             match = [string('^'),string('{'),string('}'), string('x')];
-            NameFigure = [ model.hidden_states_names{1}{idx,3}, '_', ...
+            NameFigure = [ data.labels{ ...
+                str2double(model.hidden_states_names{1}{idx,3})}, '_', ...
                 erase(model.hidden_states_names{1}{idx,1}, match), ...
                 '_', num2str(loop)];
             

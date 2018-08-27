@@ -76,7 +76,7 @@ function [configFilename] = printConfigurationFile(data, model, estimation, misc
 %       April 26, 2018
 %
 %   DATE LAST UPDATE:
-%       July 24, 2018
+%       August 20, 2018
 
 %--------------------BEGIN CODE ----------------------
 
@@ -101,6 +101,7 @@ model=p.Results.model;
 misc=p.Results.misc;
 FilePath=p.Results.FilePath;
 
+DataPath = misc.DataPath;
 
 % Set fileID for logfile
 if misc.isQuiet
@@ -121,7 +122,7 @@ if ~isFileExist
 end
 
 
-disp('     Print configuration file...')
+disp('     Printing configuration file...')
 
 %% Gather information
 %Get project name
@@ -131,12 +132,14 @@ nb_models = model.nb_class;
 % Get number of time series
 numberOfTimeSeries = length(data.labels);
 % Get training period
-trainingPeriod = misc.trainingPeriod;
+trainingPeriod = misc.options.trainingPeriod;
 % Get labels
 labels = data.labels;
 
-% Get data filename
-dataFilename=['DATA_', ProjectName, '.mat'];
+
+% Save data
+[misc, dataFilename] = saveDataBinary(data, misc, 'FilePath', DataPath, ...
+    'isForceOverwrite', true);
 
 % Get config filename
 configFilename = fullfile(FilePath, ['CFG_', ProjectName, '.m'] );
@@ -192,12 +195,6 @@ fileID_CFG=fopen(configFilename,'w');
 
 fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
 fprintf(fileID_CFG, '\n');
-% fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1),repmat(' ',1,73), ...
-%     repmat('%',1,1) );
-% fprintf(fileID_CFG, '\n');
-% fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1),repmat(' ',1,73), ...
-%     repmat('%',1,1) );
-% fprintf(fileID_CFG, '\n');
 fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1), repmat(' ',1,nshift_1), ...
     ConfigFileTitle, repmat(' ',1,75-(length(ConfigFileTitle)+2+nshift_1)), ...
     repmat('%',1,1) );
@@ -206,12 +203,6 @@ fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1), repmat(' ',1,nshift_2), ..
     Autogen_str, repmat(' ',1,75-(length(Autogen_str)+2+nshift_2)), ...
     repmat('%',1,1) );
 fprintf(fileID_CFG, '\n');
-% fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1),repmat(' ',1,73), ...
-%     repmat('%',1,1) );
-% fprintf(fileID_CFG, '\n');
-% fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,1),repmat(' ',1,73), ...
-%     repmat('%',1,1) );
-% fprintf(fileID_CFG, '\n');
 fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
 fprintf(fileID_CFG, '\n');
 
@@ -234,7 +225,7 @@ fprintf(fileID_CFG, '\n');
 fprintf(fileID_CFG,'dat=load(''%s''); \n', dataFilename );
 fprintf(fileID_CFG,'data.values=dat.values;\n' );
 fprintf(fileID_CFG,'data.timestamps=dat.timestamps;\n');
-fprintf(fileID_CFG,'misc.trainingPeriod=[%d,%d];\n',trainingPeriod);
+%fprintf(fileID_CFG,'misc.trainingPeriod=[%d,%d];\n',trainingPeriod);
 fprintf(fileID_CFG,'data.labels={');
 for i=1:numberOfTimeSeries
     fprintf(fileID_CFG,'''%s''', labels{i});
@@ -302,28 +293,47 @@ end
 fprintf(fileID_CFG,'};\n');
 fprintf(fileID_CFG, '\n');
 
-%% Print model parameters properties 
-fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
+%% Print model parameters properties
+
+fprintf(fileID_CFG,'\n');
+fprintf(fileID_CFG, repmat('%s',1,75),repmat('%',1,75));
 fprintf(fileID_CFG, '\n');
-fprintf(fileID_CFG,'%%%% D - Model parameters \n');
-fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
+fprintf(fileID_CFG, '%%%% D - Model parameters \n');
+fprintf(fileID_CFG, repmat('%s',1,75),repmat('%',1,75));
 fprintf(fileID_CFG, '\n');
-fprintf(fileID_CFG,'model.param_properties={\n');
-fprintf(fileID_CFG, ['    %% #1             #2         #3       #4  ', ...
-    '    #5                  #6          #7      #8      #9    ', ...
+fprintf(fileID_CFG, 'model.param_properties={\n');
+format = ['     %-13s %-15s %-6s %-6s ' ...
+    '[%-10s],    %-10s   %-8s %-15s %-15s %-6s %-6s\n'];
+
+fprintf(fileID_CFG, ['     %% #1       ', ...
+    '    #2             #3      #4  ', ...
+    '  #5               #6      ', ...
+    '     #7       #8              #9    ', ...
     '          #10', '\n']);
-fprintf(fileID_CFG, ['    %% Param name     Block name Model ', ...
-    '   Obs     Bound               Prior       Mean    Std   ', ...
-    '  Values          Ref', '\n']);
+fprintf(fileID_CFG, ['     %% Param name  ', ...
+    ' Block name     Model ', ...
+    '  Obs   Bound       ', ...
+    '     Prior        Mean     Std   ', ...
+    '          Values          Ref', '\n']);
 for i=1:size(model.param_properties,1)
-    space=repmat(' ',1,10-length(model.param_properties{i,1}));
-    fprintf(fileID_CFG, ['\t''%-s''' space ',\t ', ...
-        '''%-s'',\t\t''%-s'',\t ''%-s'',\t [ %-5G, %-5G],\t ', ...
-        '''%-s'',\t %-2.2G,\t %-2.2G,\t %-8.5G, ' ' ', ...
-        '\t %-2.3G %%#%d' '\n'], model.param_properties{i,:},i);
+    fprintf(fileID_CFG, format, ...
+        ['''', model.param_properties{i,1},'''', ','], ...
+        ['''',model.param_properties{i,2},'''', ','], ...
+        ['''',model.param_properties{i,3}, '''', ','], ...
+        ['''', model.param_properties{i,4},'''', ','], ...
+        strjoin(cellstr(num2str(model.param_properties{i,5})), ...
+        ', '), ...
+        ['''', model.param_properties{i,6},'''', ','], ...
+        [num2str(model.param_properties{i,7}), ','], ...
+        [num2str(model.param_properties{i,8}), ','], ...
+        [num2str(model.param_properties{i,9}), ','], ...
+        num2str(model.param_properties{i,10}), ...
+        ['%#', num2str(i)]);
+    
 end
-fprintf(fileID_CFG,'};\n');
+fprintf(fileID_CFG, '};\n');
 fprintf(fileID_CFG, '\n');
+
 
 %% Print initial states values
 fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
@@ -331,10 +341,10 @@ fprintf(fileID_CFG, '\n');
 fprintf(fileID_CFG,'%%%% E - Initial states values \n');
 fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
 fprintf(fileID_CFG, '\n');
-    
+
 for m=1:model.nb_class
-    % Expected initial hidden states 
-    fprintf(fileID_CFG,['%% Initial hidden states ', ... 
+    % Expected initial hidden states
+    fprintf(fileID_CFG,['%% Initial hidden states ', ...
         'mean for model %s:\n'], num2str(m));
     fprintf(fileID_CFG, 'model.initX{ %s }=[', num2str(m) );
     for i=1:size(model.initX{m},1)
@@ -344,9 +354,9 @@ for m=1:model.nb_class
     fprintf(fileID_CFG,'\n');
     
     % Initial hidden states variance (ignore covariance)
-    fprintf(fileID_CFG,['%% Initial hidden ', ... 
+    fprintf(fileID_CFG,['%% Initial hidden ', ...
         'states variance for model %s: \n'], num2str(m));
-   
+    
     diagV=diag(model.initV{m});
     
     fprintf(fileID_CFG, 'model.initV{ %s }=diag([ ', num2str(m) );
@@ -362,18 +372,60 @@ for m=1:model.nb_class
     fprintf(fileID_CFG,'\n');
 end
 
-%% Print custom anomalies 
+%% Print options
+fprintf(fileID_CFG, repmat('%s',1,75),repmat('%',1,75));
+fprintf(fileID_CFG, '\n');
+fprintf(fileID_CFG, '%%%% F - Options \n');
+fprintf(fileID_CFG, repmat('%s',1,75),repmat('%',1,75));
+fprintf(fileID_CFG, '\n');
+names = fieldnames(misc.options);
+
+for i=1:length(names)
+    
+    if strcmp(names{i}, 'trainingPeriod') || ...
+            strcmp(names{i}, 'FigurePosition')
+        fprintf(fileID_CFG, 'misc.options.%s=[%s];\n', names{i},  ...
+            strjoin(cellstr(num2str(misc.options.(names{i}))),', '));
+        
+    elseif strcmp(names{i}, 'MethodStateEstimation')
+        
+        fprintf(fileID_CFG, 'misc.options.%s=%s;\n', ...
+            names{i}, ['''', num2str(misc.options.(names{i})), '''']);
+        
+    elseif strcmp(names{i}(1:2), 'is')
+        
+        if misc.options.(names{i})
+        
+        fprintf(fileID_CFG, 'misc.options.%s=%s;\n', ...
+            names{i},  'true');
+        
+        else
+                 fprintf(fileID_CFG, 'misc.options.%s=%s;\n', ...
+            names{i},  'false');   
+        end
+    else
+        fprintf(fileID_CFG, 'misc.options.%s=%s;\n', ...
+            names{i}, num2str(misc.options.(names{i})));
+    end
+end
+
+
+
+%% Print custom anomalies
 if isfield(misc, 'custom_anomalies')
     fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
     fprintf(fileID_CFG, '\n');
     fprintf(fileID_CFG,'%%%% Custom anomalies :\n');
     fprintf(fileID_CFG,repmat('%s',1,75),repmat('%',1,75));
     fprintf(fileID_CFG, '\n');
-    fprintf(fileID_CFG,['misc.custom_anomalies.start_custom_anomalies=[' ...
+    fprintf(fileID_CFG,[ ...
+        'misc.custom_anomalies.start_custom_anomalies=[' ...
         num2str(misc.custom_anomalies.start_custom_anomalies) '];\n']);
-    fprintf(fileID_CFG,['misc.custom_anomalies.duration_custom_anomalies=[' ...
+    fprintf(fileID_CFG,[...
+        'misc.custom_anomalies.duration_custom_anomalies=[' ...
         num2str(misc.custom_anomalies.duration_custom_anomalies) '];\n']);
-    fprintf(fileID_CFG,['misc.custom_anomalies.amplitude_custom_anomalies=[' ...
+    fprintf(fileID_CFG,[...
+        'misc.custom_anomalies.amplitude_custom_anomalies=[' ...
         num2str(misc.custom_anomalies.amplitude_custom_anomalies) '];\n']);
     fprintf(fileID_CFG,'\n');
 end

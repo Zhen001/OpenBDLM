@@ -99,7 +99,7 @@ function [data, model, estimation, misc] = OpenBDLM_main(UserInput)
 %       June 27, 2018
 %
 %   DATE LAST UPDATE:
-%       August 9, 2018
+%       August 22, 2018
 
 %--------------------BEGIN CODE ----------------------
 %% Read input argument
@@ -155,13 +155,19 @@ misc.LogPath                = 'log_files';
 misc.ProjectInfoFilename    = 'ProjectsInfo.mat';
 
 %% Set version
-version = '1.5';
+version = '1.8';
 
 %Initialize random stream number based on clock
 %RandStream.setGlobalStream(RandStream('mt19937ar','seed',861040000));
 
 %% Create log file to record messages during program run
 [misc] = createLogFile(misc);
+
+%% Set default options
+[misc]=setDefaultOptions(misc);
+
+%% Print options
+%[misc]=printOptions(misc);
 
 if misc.isQuiet
     % output messages in  a specific log file
@@ -205,7 +211,7 @@ if misc.InteractiveMode.isInteractiveMode || misc.BatchMode.isBatchMode
         [~] = displayProjects(misc);
         
         fprintf(fileID, ['- Type D to Delete project(s), ', ...
-            'V for Version control, Q to Quit.\n']);
+            'V for Version control, Q to Save and Quit.\n']);
         if misc.BatchMode.isBatchMode
             UserChoice= ...
                 eval(char(misc.BatchMode.Answers{...
@@ -397,6 +403,13 @@ while(1)
             %% Export project in a configuration file
             pilotePrintConfigurationFile(data, model, estimation, misc)
             incTest=0;
+        elseif  user_inputs==18
+            %% Export current options in a configuration file format
+            [misc] = printOptions(misc);
+            incTest=0;
+        else
+            disp(' ')
+            disp('      wrong input')
         end
         
     end
