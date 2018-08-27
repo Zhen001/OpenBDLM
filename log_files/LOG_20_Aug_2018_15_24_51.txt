@@ -1,0 +1,90 @@
+OpenBLDM log file created on 20-Aug-2018 15:24:51
+
+----------------------------------------------------------------------------------------------
+     Starting OpenBDLM_V1.5...
+----------------------------------------------------------------------------------------------
+
+            Structural Health Monitoring using Bayesian Dynamic Linear Models
+
+----------------------------------------------------------------------------------------------
+
+- Start a new project: 
+
+     *      Enter a configuration filename 
+     0   -> Interactive tool 
+
+- Load a saved project: 
+
+     1   -> INIT                      15-Aug-2018 11:23:41	
+     2   -> PJCCI_1_SKF_KR            17-Aug-2018 12:19:50	
+     3   -> LA_test                   20-Aug-2018 15:23:57	
+
+- Type D to Delete project(s), V for Version control, Q to Quit.
+
+     choice >> 3
+
+     Loading project...
+
+---------------------------------------------------------------------------------------------- 
+/    Choose from 
+---------------------------------------------------------------------------------------------- 
+
+     1  ->  Learn model parameters values 
+     2  ->  Estimate initial hidden states values 
+     3  ->  Estimate hidden states values 
+
+     11 ->  Display and modify current model parameter values 
+     12 ->  Display and modify current initial hidden states values 
+     13 ->  Display and modify current training period 
+     14 ->  Plots 
+     15 ->  Display model matrices 
+     16 ->  Simulate data 
+     17 ->  Export project in configuration file format 
+
+     Type Q to Quit 
+
+     choice >> 3
+
+---------------------------------------------------------------------------------------------- 
+/    State estimation
+---------------------------------------------------------------------------------------------- 
+
+     1 ->  Filter 
+     2 ->  Smoother 
+
+     Type R to return to the previous menu 
+
+     choice >> 1
+     Computing hidden states ...
+     log-likelihood:  -63.577 
+     Saving project...
+     Project saved in saved_projects/PROJ_LA_test.mat. 
+
+     Plot hidden variables in progress...
+     Plotting hidden states estimations ...
+<a href="matlab: opentoline('/Users/James_Goulet/Documents/GitHub/OpenBDLM/functions/VisualizationTools/plotPredictedData.m',289,1)">289 </a>        set(gca,'XTick',linspace(timestamps(plot_time_2(1)), ...
+linspace(timestamps(plot_time_2(1)), ...
+            timestamps(plot_time_2(size(timestamps(plot_time_2),1)))
+             timestamps(plot_time_2(size(timestamps(plot_time_2),1)))
+                                                                     
+{Error: Expression or statement is incorrect--possibly unbalanced (, {, or [.
+} 
+linspace(timestamps(plot_time_2(1)), ...
+            timestamps(plot_time_2(size(timestamps(plot_time_2),1))), ...
+            misc.ndivy)
+
+ans =
+
+   7.3875e+05   7.3875e+05   7.3875e+05
+
+set(gca,'XTick',linspace(timestamps(plot_time_2(1)), ...
+            timestamps(plot_time_2(size(timestamps(plot_time_2),1))), ...
+            misc.ndivy),...
+            'YTick', [], ...
+            'box','off', ...
+            'FontSize', 16);
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('matlab.graphics.axis.Axes/set')" style="font-weight:bold">matlab.graphics.axis.Axes/set</a>
+While setting the 'XTick' property of '<a href="matlab:doc matlab.graphics.axis.Axes">Axes</a>':
+Value must be a vector of type single or double whose values increase
+} 
+OpenBDLM_main

@@ -1,0 +1,103 @@
+OpenBLDM log file created on 20-Aug-2018 15:34:09
+
+----------------------------------------------------------------------------------------------
+     Starting OpenBDLM_V1.5...
+----------------------------------------------------------------------------------------------
+
+            Structural Health Monitoring using Bayesian Dynamic Linear Models
+
+----------------------------------------------------------------------------------------------
+
+- Start a new project: 
+
+     *      Enter a configuration filename 
+     0   -> Interactive tool 
+
+- Load a saved project: 
+
+     1   -> INIT                      15-Aug-2018 11:23:41	
+     2   -> PJCCI_1_SKF_KR            17-Aug-2018 12:19:50	
+     3   -> LA_test                   20-Aug-2018 15:32:16	
+
+- Type D to Delete project(s), V for Version control, Q to Quit.
+
+     choice >> 3
+
+     Loading project...
+
+---------------------------------------------------------------------------------------------- 
+/    Choose from 
+---------------------------------------------------------------------------------------------- 
+
+     1  ->  Learn model parameters values 
+     2  ->  Estimate initial hidden states values 
+     3  ->  Estimate hidden states values 
+
+     11 ->  Display and modify current model parameter values 
+     12 ->  Display and modify current initial hidden states values 
+     13 ->  Display and modify current training period 
+     14 ->  Plots 
+     15 ->  Display model matrices 
+     16 ->  Simulate data 
+     17 ->  Export project in configuration file format 
+
+     Type Q to Quit 
+
+     choice >> 2
+
+---------------------------------------------------------------------------------------------- 
+/ Estimate initial hidden states x_0 
+---------------------------------------------------------------------------------------------- 
+
+     Computing hidden states ...
+<a href="matlab: opentoline('/Users/James_Goulet/Documents/GitHub/OpenBDLM/functions/StateEstimation/SwitchingKalmanFilter.m',261,1)">261 </a>                if strcmp(misc.method,'UD')
+if system_dependent('IsDebugMode')==1, dbcont; end
+if system_dependent('IsDebugMode')==1, dbcont; end
+x_ij{j}(:,i), V_ij{j}(:,:,i)
+
+ans =
+
+           90
+      0.53474
+    0.0012249
+
+
+ans =
+
+            9     0.020223   3.3711e-05
+     0.020223       3318.6       9.7855
+   3.3711e-05       9.7855     0.043834
+
+Q{j,i,t}
+
+ans =
+
+   1.0365e+09   3.5498e+06       6483.6
+   3.5498e+06        12967       26.645
+       6483.6       26.645        0.073
+
+dbcont
+     log-likelihood:  -63.577 
+
+---------------------------------------------------------------------------------------------- 
+/    Choose from 
+---------------------------------------------------------------------------------------------- 
+
+     1  ->  Learn model parameters values 
+     2  ->  Estimate initial hidden states values 
+     3  ->  Estimate hidden states values 
+
+     11 ->  Display and modify current model parameter values 
+     12 ->  Display and modify current initial hidden states values 
+     13 ->  Display and modify current training period 
+     14 ->  Plots 
+     15 ->  Display model matrices 
+     16 ->  Simulate data 
+     17 ->  Export project in configuration file format 
+
+     Type Q to Quit 
+
+     choice >> {Operation terminated by user during <a href="matlab:matlab.internal.language.introspective.errorDocCallback('OpenBDLM_main', '/Users/James_Goulet/Documents/GitHub/OpenBDLM/OpenBDLM_main.m', 317)" style="font-weight:bold">OpenBDLM_main</a> (<a href="matlab: opentoline('/Users/James_Goulet/Documents/GitHub/OpenBDLM/OpenBDLM_main.m',317,0)">line 317</a>)
+
+} 
+OpenBDLM_main

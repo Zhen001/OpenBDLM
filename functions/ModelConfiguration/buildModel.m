@@ -667,16 +667,10 @@ for class_from=1:numberOfModelClass  %Loop over each model class
                                     param_properties=[param_properties;{'\phi', [num2str(obs_idx) '|' num2str(obs) '(' block_name ')' ],[num2str(class_from)],[num2str(obs)],[-inf,inf], PriorType, PriorMean, PriorSdev}];
                                     parameter=[parameter;eval(eval([block_name '.pI0{:}']))];
                                     param_idx=param_idx+1;
-                                    
                                 else
                                     p_idx=[];
                                 end
-                                
-                                if block_idx==52
-                                    C{class_from}{obs_idx,obs}=[C{class_from}{obs_idx,obs},',',[block_name '.I(p([' num2str(p_idx) ']),t,dt).*' C_block_K]];
-                                else
                                     C{class_from}{obs_idx,obs}=[C{class_from}{obs_idx,obs},',',[block_name '.I(p([' num2str(p_idx) ']),t,dt)']];
-                                end
                             end
                             if isfield(model.components,'PCA')
                                 C{class_from}{obs_idx,obs}=[C{class_from}{obs_idx,obs},'*','sum(p([' num2str(PCA_reg_param{obs_idx}) ']).*model.components.PCA{' num2str(obs_idx) '}(' num2str(ic_idx) ',:)'')' ];
